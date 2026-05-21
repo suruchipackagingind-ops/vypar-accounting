@@ -1,0 +1,24 @@
+{
+  "overview": "A Vyapar-style CRM and accounting app for Indian small businesses — manage clients, create GST invoices, track payments, and view financial dashboard with cash flow summaries.",
+  "features": [
+    "Client & vendor management with GST details",
+    "Sales invoice creation with line items and tax calculation",
+    "Purchase bill management",
+    "Payment recording and tracking",
+    "Financial dashboard with revenue/expense summary",
+    "Invoice aging and overdue tracking",
+    "User login and role-based access",
+    "Responsive design for desktop and tablet"
+  ],
+  "category": "productivity",
+  "tags": [
+    "accounting",
+    "crm",
+    "invoicing",
+    "gst",
+    "india",
+    "small-business",
+    "vyapar"
+  ],
+  "last_updated": "2026-05-20T08:36:08.050Z"
+}

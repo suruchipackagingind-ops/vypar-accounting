@@ -1,0 +1,107 @@
+// Version: 1.0.0
+type Data__791452850<K, V> =
+  {var count : Nat__490723111; kvs : [var ?(K, V)]};
+type Internal__8484328<K, V> =
+  {children : [var ?Node__46230540<K, V>]; data : Data__791452850<K, V>};
+type InvoiceStatus__868988978 =
+  {#cancelled; #draft; #overdue; #paid; #partiallyPaid; #sent};
+type InvoiceType__28008599 = {#purchase; #sales};
+type Invoice__785106573 =
+  {
+    var amountPaid : Float;
+    createdAt : Int;
+    dueDate : ?Int;
+    grandTotal : Float;
+    id : Nat;
+    invoiceNumber : Text;
+    invoiceType : InvoiceType__28008599;
+    lineItems : [LineItem__1041923660];
+    notes : ?Text;
+    partyId : Nat;
+    var status : InvoiceStatus__868988978;
+    subtotal : Float;
+    totalDiscount : Float;
+    totalTax : Float;
+    updatedAt : Int
+  };
+type Leaf__809889148<K, V> = {data : Data__791452850<K, V>};
+type LineItem__1041923660 =
+  {
+    discount : Float;
+    itemName : Text;
+    quantity : Float;
+    rate : Float;
+    taxPercent : Float;
+    taxType : TaxType__496054827;
+    unit : Text
+  };
+type Map__158565046<K, V> = Map__297112838<K, V>;
+type Map__297112838<K, V> =
+  {var root : Node__46230540<K, V>; var size : Nat__490723111};
+type Map__605269027<K, V> = Map__158565046<K, V>;
+type Nat__490723111 = Nat__920180692;
+type Nat__920180692 = Nat;
+type Node__46230540<K, V> =
+  {#internal : Internal__8484328<K, V>; #leaf : Leaf__809889148<K, V>};
+type PartyType__924340507 = {#both; #customer; #vendor};
+type Party__225900399 =
+  {
+    address : ?Text;
+    createdAt : Int;
+    email : ?Text;
+    gstNumber : ?Text;
+    id : Nat;
+    var isActive : Bool;
+    name : Text;
+    partyType : PartyType__924340507;
+    phone : ?Text
+  };
+type PaymentMethod__736241749 = {#bank; #cash; #cheque; #upi};
+type Payment__944866998 =
+  {
+    amount : Float;
+    id : Nat;
+    invoiceId : Nat;
+    method : PaymentMethod__736241749;
+    notes : ?Text;
+    paymentDate : Int;
+    recordedAt : Int
+  };
+type TaxType__496054827 = {#cgstSgst; #igst; #none};
+type UserRole__1073662873 = {#admin; #guest; #user};
+actor {
+  stable accessControlState :
+    {
+      var adminAssigned : Bool;
+      userRoles : Map__605269027<Principal, UserRole__1073662873>
+    };
+  stable invoiceState :
+    {var nextPurchaseInvoiceId : Nat; var nextSalesInvoiceId : Nat};
+  stable invoices :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?Invoice__785106573]];
+      var elementIndex : Nat__490723111
+    };
+  stable parties :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?Party__225900399]];
+      var elementIndex : Nat__490723111
+    };
+  stable partyState : {var nextPartyId : Nat};
+  stable paymentState : {var nextPaymentId : Nat};
+  stable payments :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?Payment__944866998]];
+      var elementIndex : Nat__490723111
+    };
+  stable userProfiles :
+    {
+      var root :
+        Node__46230540<Principal,
+                        {name : Text; role : {#accountant; #owner; #viewer}}>;
+      var size : Nat__490723111
+    }
+};

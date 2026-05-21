@@ -1,0 +1,235 @@
+type http_request_result = 
+ record {
+   body: blob;
+   headers: vec http_header;
+   status: nat;
+ };
+type http_header = 
+ record {
+   name: text;
+   value: text;
+ };
+type UserRole = 
+ variant {
+   admin;
+   guest;
+   user;
+ };
+type UpdatePartyRequest = 
+ record {
+   address: opt text;
+   email: opt text;
+   gstNumber: opt text;
+   id: nat;
+   name: text;
+   partyType: PartyType;
+   phone: opt text;
+ };
+type UpdateInvoiceStatusRequest = 
+ record {
+   id: nat;
+   status: InvoiceStatus;
+ };
+type TransformationOutput = 
+ record {
+   body: blob;
+   headers: vec http_header;
+   status: nat;
+ };
+type TransformationInput = 
+ record {
+   context: blob;
+   response: http_request_result;
+ };
+type TaxType = 
+ variant {
+   cgstSgst;
+   igst;
+   none;
+ };
+type RecordPaymentRequest = 
+ record {
+   amount: float64;
+   invoiceId: nat;
+   method: PaymentMethod;
+   notes: opt text;
+   paymentDate: int;
+ };
+type PaymentMethod = 
+ variant {
+   bank;
+   cash;
+   cheque;
+   upi;
+ };
+type Payment = 
+ record {
+   amount: float64;
+   id: nat;
+   invoiceId: nat;
+   method: PaymentMethod;
+   notes: opt text;
+   paymentDate: int;
+   recordedAt: int;
+ };
+type PartyType = 
+ variant {
+   both;
+   customer;
+   vendor;
+ };
+type PartyInfo = 
+ record {
+   address: opt text;
+   createdAt: int;
+   email: opt text;
+   gstNumber: opt text;
+   id: nat;
+   isActive: bool;
+   name: text;
+   partyType: PartyType;
+   phone: opt text;
+ };
+type MonthlyFlow = 
+ record {
+   inflow: float64;
+   month: nat;
+   outflow: float64;
+   year: int;
+ };
+type LineItem = 
+ record {
+   discount: float64;
+   itemName: text;
+   quantity: float64;
+   rate: float64;
+   taxPercent: float64;
+   taxType: TaxType;
+   unit: text;
+ };
+type InvoiceType = 
+ variant {
+   purchase;
+   sales;
+ };
+type InvoiceStatus = 
+ variant {
+   cancelled;
+   draft;
+   overdue;
+   paid;
+   partiallyPaid;
+   sent;
+ };
+type InvoiceInfo = 
+ record {
+   amountPaid: float64;
+   createdAt: int;
+   dueDate: opt int;
+   grandTotal: float64;
+   id: nat;
+   invoiceNumber: text;
+   invoiceType: InvoiceType;
+   lineItems: vec LineItem;
+   notes: opt text;
+   partyId: nat;
+   status: InvoiceStatus;
+   subtotal: float64;
+   totalDiscount: float64;
+   totalTax: float64;
+   updatedAt: int;
+ };
+type GSTINData = 
+ record {
+   isActive: bool;
+   legalName: text;
+   pincode: text;
+   principalAddress: text;
+   state: text;
+   tradeName: text;
+ };
+type DashboardSummary = 
+ record {
+   outstandingPayables: float64;
+   outstandingReceivables: float64;
+   overdueInvoicesCount: nat;
+   totalPurchases: float64;
+   totalSales: float64;
+ };
+type CreatePartyRequest = 
+ record {
+   address: opt text;
+   email: opt text;
+   gstNumber: opt text;
+   name: text;
+   partyType: PartyType;
+   phone: opt text;
+ };
+type CreateInvoiceRequest = 
+ record {
+   dueDate: opt int;
+   invoiceType: InvoiceType;
+   lineItems: vec LineItem;
+   notes: opt text;
+   partyId: nat;
+ };
+type AgingBucket = 
+ record {
+   bucket: text;
+   count: nat;
+   totalAmount: float64;
+ };
+service : {
+  _initializeAccessControl: () -> ();
+  assignCallerUserRole: (user: principal, role: UserRole) -> ();
+  cancelInvoice: (id: nat) -> (bool);
+  createInvoice: (req: CreateInvoiceRequest) -> (InvoiceInfo);
+  createParty: (req: CreatePartyRequest) -> (PartyInfo);
+  deactivateParty: (id: nat) -> (bool);
+  getAgingReport: (invoiceType: InvoiceType) -> (vec AgingBucket) query;
+  getCallerUserProfile: () ->
+   (opt record {
+          name: text;
+          role: variant {
+                  accountant;
+                  owner;
+                  viewer;
+                };
+        }) query;
+  getCallerUserRole: () -> (UserRole) query;
+  getDashboardSummary: () -> (DashboardSummary) query;
+  getInvoice: (id: nat) -> (opt InvoiceInfo) query;
+  getMonthlyCashFlow: (months: nat) -> (vec MonthlyFlow) query;
+  getParty: (id: nat) -> (opt PartyInfo) query;
+  getUserProfile: (user: principal) ->
+   (opt record {
+          name: text;
+          role: variant {
+                  accountant;
+                  owner;
+                  viewer;
+                };
+        }) query;
+  gstTransform: (raw: TransformationInput) -> (TransformationOutput) query;
+  isCallerAdmin: () -> (bool) query;
+  listInvoices: (invoiceType: opt InvoiceType, status: opt InvoiceStatus) ->
+   (vec InvoiceInfo) query;
+  listParties: (partyType: opt PartyType) -> (vec PartyInfo) query;
+  listPaymentsForInvoice: (invoiceId: nat) -> (vec Payment) query;
+  lookupGSTIN: (gstin: text) -> (variant {
+                                   err: text;
+                                   ok: GSTINData;
+                                 });
+  recordPayment: (req: RecordPaymentRequest) -> (Payment);
+  saveCallerUserProfile: (profile:
+   record {
+     name: text;
+     role: variant {
+             accountant;
+             owner;
+             viewer;
+           };
+   }) -> ();
+  updateInvoiceStatus: (req: UpdateInvoiceStatusRequest) -> (opt InvoiceInfo);
+  updateParty: (req: UpdatePartyRequest) -> (opt PartyInfo);
+}
